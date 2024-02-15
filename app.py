@@ -11,10 +11,8 @@ from satori import satori_remediation as remediation
 from satori import satori_query_postgres as postgres
 from satori import satori_query_redshift as redshift
 
-
 search_string = ''
 satori_tag = ''
-
 
 def search(satori_tag, search_string):
 
@@ -45,53 +43,38 @@ def search(satori_tag, search_string):
         satori_displayname = ds_entry['name']
         db_type = ds_entry['type']
 
-        
-        found_locations = locations.get_locations_by_datastore(auth_headers, 
-                                                               satori.apihost, 
-                                                               satori.satori_account_id , 
-                                                               datastore_id)
-        
-        for location_entry in found_locations[1]:
+        if db_type == 'REDSHIFT':
 
-            #reset the search results after each location
-            search_results = ['','']
-            remediation_response = ''
+            found_locations = locations.get_locations_by_datastore(auth_headers, 
+                                                                   satori.apihost, 
+                                                                   satori.satori_account_id , 
+                                                                   datastore_id)
+            
+            for location_entry in found_locations[1]:
 
-            tags = location_entry['tags']
-            if tags is not None:
-                for tag_item in tags:
-                    if tag_item['name'] == satori_tag:
+                #reset the search results after each location
+                search_results = ['','']
+                remediation_response = ''
 
-                        # for each location of type EMAIL, we build the following vars:
-                        # dbname, table, column_name, schema, query-able location, full_location
+                tags = location_entry['tags']
+                if tags is not None:
+                    for tag_item in tags:
+                        if tag_item['name'] == satori_tag:
 
-                        # Need to finish databricks, for now omitting
-                        if db_type in ('DATABRICKS', 'GRAPHQL', 'API_SERVER', 'OPENSEARCH'):
-                            dbname =        ''
-                            table =         ''
-                            column_name =   ''
-                        else:
+                            # for each location of type 'satori_tag', we build the following vars:
+                            # dbname, table, column_name, schema, query-able location, full_location
+                          
                             dbname =        location_entry['location']['db']
                             table =         location_entry['location']['table']
                             column_name =   location_entry['location']['column']
-                            #some DB's don't have a concept of schema
-                            if db_type in ('MARIA_DB', 'ATHENA', 'MYSQL'):
-                                schema = ''
-                                query_location = table
-                                full_location = satori_hostname + '::' + dbname + '.' + table + '.' + column_name
-                            else:
-                                schema = location_entry['location']['schema']
-                                query_location = schema + '.' + table
-                                full_location = satori_hostname + '::' + dbname + '.' + schema + '.' + table + '.' + column_name
+                            schema = location_entry['location']['schema']
+                            query_location = schema + '.' + table
+                            full_location = satori_hostname + '::' + dbname + '.' + schema + '.' + table + '.' + column_name
 
+                            sql_query = "SELECT * from {} where {} = '{}' LIMIT {};".format(query_location, column_name, search_string, satori.LIMIT)
 
-                        sql_query = "SELECT * from {} where {} = '{}' LIMIT {};".format(query_location, column_name, search_string, satori.LIMIT)
-
-                        # BEGIN MAIN DB CLIENT WORK
-                        
-                        if db_type == 'REDSHIFT' and satori.satori_username != '':
-                            #print("Search Results for: " + ds_name)
-
+                            # BEGIN MAIN DB CLIENT WORK
+                            
                             search_results = redshift.search_for_email(
                                 satori_hostname, 
                                 satori.PORT_REDSHIFT, 
@@ -109,7 +92,7 @@ def search(satori_tag, search_string):
                             query_items[satori_hostname + "::" + dbname].append(search_results[1])
                         
                     
-                            print("____________________________________________")
+                            print("_________________________________________________________")
                             print("\nLOCATION:")
                             print(full_location)
                             print("\nSEARCH RESULTS:")
@@ -124,9 +107,7 @@ def search(satori_tag, search_string):
             queries_formatted += '' + str(item) + '\n'
 
     print("\n\nSUMMARY OF ALL THE PREVIOUSLY RUN QUERIES:\n\n")
-
     print(queries_formatted)
-
     print("Finished querying all Satori Datastore " + satori_tag + " locations for value " + search_string)
 
 if __name__ == '__main__':

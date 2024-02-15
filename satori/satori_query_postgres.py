@@ -10,7 +10,7 @@ def search_for_email(host, port, database, user, password, sql_query):
 		#connector.commit()
 		rows = cur.fetchall()
 		for row in rows:
-			result += str(row) + '</br>'
+			result += str(row) + '\n'
 		return (result, sql_query)
 	except Exception as err:
 		print(err)

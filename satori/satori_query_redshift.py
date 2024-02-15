@@ -24,7 +24,7 @@ def search_for_email(host, port, database, user, password, sql_query):
 	try:
 		rows = cur.fetchall()
 		for row in rows:
-			result += str(row) + '</br>'
+			result += str(row) + '\n'
 	except Exception as err:
 		print(err)
 		connector.rollback()
