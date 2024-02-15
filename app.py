@@ -108,7 +108,7 @@ def search(satori_tag, search_string):
 
     print("\n\nSUMMARY OF ALL THE PREVIOUSLY RUN QUERIES:\n\n")
     print(queries_formatted)
-    print("Finished querying all Satori Datastore " + satori_tag + " locations for value " + search_string)
+    print("Finished querying all Satori Datastore " + satori_tag + " locations for value '" + search_string + "'")
 
 if __name__ == '__main__':
 
