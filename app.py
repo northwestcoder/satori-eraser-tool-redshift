@@ -32,7 +32,6 @@ def search(satori_tag, search_string):
         satori.apihost, 
         satori.satori_account_id)
 
-
     print("Querying all Redshift Datastores Via Satori, please wait..")
 
     for ds_entry in found_datastores[1]:
