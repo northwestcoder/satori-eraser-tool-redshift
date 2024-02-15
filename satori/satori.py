@@ -1,4 +1,4 @@
-# pre-fill the web form values per the README.md file
+# must fill in all these values
 
 satori_account_id = "ACCOUNT_ID"
 satori_serviceaccount_id = "SA_ID"
