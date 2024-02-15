@@ -43,6 +43,7 @@ def search(satori_tag, search_string):
         satori_displayname = ds_entry['name']
         db_type = ds_entry['type']
 
+
         if db_type == 'REDSHIFT':
 
             found_locations = locations.get_locations_by_datastore(auth_headers, 
